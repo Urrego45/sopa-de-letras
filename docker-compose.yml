@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+
+  python:
+    container_name: sopa-letras
+    build:
+      context: backend
+      dockerfile: dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - python-network
+    volumes:
+      - ./backend:/app
+
+
+networks:
+  python-network:
+    driver: bridge
