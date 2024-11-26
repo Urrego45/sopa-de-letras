@@ -35,15 +35,7 @@ class pruebaApi(APIView):
         pprint.pprint(word_search)
         pprint.pprint(word_search[1][0])
 
-        # for fila, index in enumerate(word_search):
-
-        #     print(fila, index)
-
-        #     for columna, dato in enumerate(index):
-        #         print(columna, dato)
-
         for word in words:
-            # print(word[0].upper())
 
             upper_word = word.upper()
 
@@ -58,7 +50,7 @@ class pruebaApi(APIView):
 
                     print(position)
 
-                    result.append(self.send(row, position, upper_word, index))
+                    result.append(self.send(row, position, upper_word, index, word_search))
 
                     print(result, 'result')
 
@@ -71,57 +63,83 @@ class pruebaApi(APIView):
 
         return 'aa'
     
-    def send(self, row, position, word, index):
-        
-        print(row, position, word, index,'ppppppppppppppppppppppppppppppp')
+    def send(self, row, position, word, index, word_search):
 
         message = ''
 
         message = self.send_horizontal(index, word, row)
-
-        print(message, 'mensaje')
 
         if message: 
             return message
 
         print('continua')
 
-        # self.send_vertical(letter, word)
+        message = self.send_vertical(index, word, row, position, word_search)
+
+        print(message)
+
+        if message:
+            return message
+
         # self.send_diagonal(letter, word)
 
 
     def send_horizontal(self, index, word, row):
 
-        print('--------------------------')
-
         msg = 'la palabra {} existe en la fila {}'
 
         str_index = "".join(index)
 
-        print(str_index)
-        print(str_index[::-1])
-
-        print(word)
-
         if word in str_index:
-            print('existe --------------------------------')
             return msg.format(word, row)
         
         if word in str_index[::-1]:
-            print('existe 2 --------------------------------')
             return msg.format(word, row)
-
-
         
         return None
 
-        print(word)
-        # print(r)
+    def send_vertical(self, index, word, row, position, word_search):
+        
+        print(index, word, row, position)
+        print(len(word))
 
-    def send_vertical():
-        pass
+        print(row - len(word))
 
-    def send_diagonal():
+        a = ''
+        msg = 'Horizontal: la palabra {} existe desde la fila {} hasta la fila {}'
+
+        if (row + len(word)) <= 13:
+
+            print('dentro')
+
+            print(word_search[0][0])
+            print(word_search[1][0])
+            print(word_search[2][0])
+            print(word_search[3][0])
+
+            for i, value in enumerate(word):
+
+                if value is not word_search[i][row]:
+                    break
+
+                a += value
+
+
+                print(i, value)
+
+            print(a, word, 'llllll')
+            print(a == word, 'llllll')
+            print(word is a, 'llllll')
+
+            if word == a:
+                print('si es')
+                return msg.format(word, row, row + len(word))
+
+            print(a, 'aaaaaaaaaaaaa')
+        
+        return None
+
+    def send_diagonal(self, index, word, row, position, word_search):
         pass
 
 
