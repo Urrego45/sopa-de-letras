@@ -17,7 +17,7 @@ class pruebaApi(APIView):
 
         result = self.send_words(word_search, words)
 
-        return Response([words, word_search], status=status.HTTP_200_OK)
+        return Response(result, status=status.HTTP_200_OK)
 
     def format_letter_words(self, letter, words):
 
@@ -32,36 +32,29 @@ class pruebaApi(APIView):
     def send_words(self, word_search, words):
 
         result = []
-        pprint.pprint(word_search)
-        pprint.pprint(word_search[1][0])
+
+        message = ''
 
         for word in words:
 
             upper_word = word.upper()
 
-            print(upper_word, 'upper')
-
             for row, index in enumerate(word_search):
 
                 if upper_word[0] in index:
-                    print('existe')
 
                     position = [i for i, value in enumerate(index) if value == upper_word[0]]
 
-                    print(position)
+                    message = self.send(row, position, upper_word, index, word_search)
 
-                    result.append(self.send(row, position, upper_word, index, word_search))
+                    if message:
+                        result.append(message)
+                        break
+            
+            if not message:
+                result.append(f'La palabra {upper_word} no fue encontrada')
 
-                    print(result, 'result')
-
-
-                # print(letter, 'aaaaaaaaaa')
-                break
-            break
-
-        # pprint.pprint(words)
-
-        return 'aa'
+        return result
     
     def send(self, row, position, word, index, word_search):
 
@@ -72,16 +65,15 @@ class pruebaApi(APIView):
         if message: 
             return message
 
-        print('continua')
-
         message = self.send_vertical(index, word, row, position, word_search)
-
-        print(message)
 
         if message:
             return message
 
-        # self.send_diagonal(letter, word)
+        message = self.send_diagonal(index, word, row, position, word_search)
+
+        if message:
+            return message
 
 
     def send_horizontal(self, index, word, row):
@@ -98,81 +90,98 @@ class pruebaApi(APIView):
         
         return None
 
-    def send_vertical(self, index, word, row, position, word_search):
-        
-        print(index, word, row, position)
-        print(len(word))
+    def send_vertical(self, index, word, row, positions, word_search):
 
-        print(row - len(word))
-
-        a = ''
-        msg = 'Horizontal: la palabra {} existe desde la fila {} hasta la fila {}'
+        build_word = ''
+        msg = 'Vertical: la palabra {} existe desde la fila {} hasta la fila {}, en la posicion {}.'
 
         if (row + len(word)) <= 13:
 
-            print('dentro')
+            for position in positions:
+                build_word = ''
 
-            print(word_search[0][0])
-            print(word_search[1][0])
-            print(word_search[2][0])
-            print(word_search[3][0])
+                for i, value in enumerate(word):
 
-            for i, value in enumerate(word):
+                    if value is not word_search[i][position]:
+                        break
 
-                if value is not word_search[i][row]:
-                    break
+                    build_word += value
 
-                a += value
+                if word == build_word:
+                    return msg.format(word, row + 1, row + len(word), position + 1)
 
+        if ((row + 1) - len(word) >= 0):
+            
+            for position in positions:
+                build_word = ''
 
-                print(i, value)
+                for i, value in enumerate(word):
 
-            print(a, word, 'llllll')
-            print(a == word, 'llllll')
-            print(word is a, 'llllll')
+                    if value is not word_search[row - i][position]:
+                        break
 
-            if word == a:
-                print('si es')
-                return msg.format(word, row, row + len(word))
+                    build_word += value
 
-            print(a, 'aaaaaaaaaaaaa')
+                if word == build_word:
+                    return msg.format(word, row + 1, (row + 1) - len(word), position + 1)
+
+    def send_diagonal(self, index, word, row, positions, word_search):
         
-        return None
+        build_word = ''
+        msg = 'Diagonal: La palabra {} inica en ({}, {}) y finaliza en ({}, {})'
 
-    def send_diagonal(self, index, word, row, position, word_search):
-        pass
+        if (row + len(word)) <= 13:
 
+            for position in positions:
+                build_word = ''
 
-# o MANATI
-# o PERRO -
-# o GATO -
-# o CONEJO
-# o TIBURON
-# o ELEFANTE
-# o ALCON
-# o SERPIENTE -
-# o JAGUAR
-# o CANGURO
-# o LOBO -
-# o MONO
-# o NUTRIA
-# o LEON
-# o LORO
-# o TORO
-# o ORUGA
+                if (position + len(word)) <= 13:
+                    
+                    for i, value in enumerate(word):
 
+                        if value is not word_search[row + i][position + i]:
+                            break
 
-# N,D,E,K,I,C,A,N,G,U,R,O,G,E,
-# S,X,R,Y,K,V,I,I,Q,G,W,Q,O,D,
-# J,A,G,U,A,R,Z,W,B,N,K,O,U,A,
-# M,L,E,L,E,F,A,N,T,E,H,O,G,W,
-# L,O,B,O,N,U,T,R,I,A,O,U,S,U,
-# W,W,O,S,O,G,A,T,O,V,R,T,M,O,
-# H,L,Z,N,C,T,Y,Z,E,O,X,A,U,R,
-# C,E,C,Y,T,I,B,U,R,O,N,S,R,O,
-# C,O,N,E,J,O,Y,U,S,M,R,S,H,T,
-# Y,N,I,F,E,F,P,T,E,Z,O,O,S,F,
-# O,S,S,E,R,P,I,E,N,T,E,F,L,G,
-# P,P,V,D,D,X,U,F,A,L,C,O,N,Y,
-# M,O,N,O,C,U,Q,W,M,A,N,A,T,I,
-# N,N,X,H,E,B,P,M,U,P,E,R,R,O
+                        build_word += value
+
+                    if word == build_word:
+                        return msg.format(word, row + 1, position + 1, (row + 1) + len(word), (position + 1) + len(word))
+
+                if ((position + 1) - len(word)) >= 0:
+
+                    for i, value in enumerate(word):
+
+                        if value is not word_search[row + i][position - i]:
+                            break
+
+                        build_word += value
+
+                    if word == build_word:
+                        return msg.format(word, row + 1, position + 1, (row + 1) + len(word), (position + 1) - len(word))
+
+        if ((row + 1) - len(word) >= 0):
+
+            for position in positions:
+
+                if ((position + 1) - len(word)) >= 0:
+
+                    for i, value in enumerate(word):
+
+                        if value is not word_search[row - i][position - i]:
+                            break
+
+                        build_word += value
+
+                    if word == build_word:
+                        return msg.format(word, row + 1, position + 1, (row + 1) - len(word), (position + 1) - len(word))
+
+                if (position + len(word)) <= 13:
+                    for i, value in enumerate(word):
+
+                        if value is not word_search[row - i][position + i]:
+                            break
+
+                        build_word += value
+
+                    if word == build_word:
+                        return msg.format(word, row + 1, position + 1, (row + 1) - len(word), (position + 1) + len(word))
