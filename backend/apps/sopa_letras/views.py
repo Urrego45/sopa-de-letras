@@ -70,7 +70,7 @@ class wordSearch(APIView):
         if message:
             return message
 
-        message = self.send_diagonal(word, row, position, word_search)
+        message = self.search_diagonal(word, row, position, word_search)
 
         if message:
             return message
@@ -124,7 +124,7 @@ class wordSearch(APIView):
                 if word == build_word:
                     return msg.format(word, row + 1, (row + 1) - len(word), position + 1)
 
-    def send_diagonal(self, word, row, positions, word_search):
+    def search_diagonal(self, word, row, positions, word_search):
         
         build_word = ''
         msg = 'Diagonal: La palabra {} inica en ({}, {}) y finaliza en ({}, {})'
