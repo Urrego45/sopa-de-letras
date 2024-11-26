@@ -10,7 +10,7 @@ _WORD_SEARCH_LEN = 196
 _MAX_ROW_LEN = 13
 _MIN_ROW_LEN = 0
 
-class pruebaApi(APIView):    
+class wordSearch(APIView):    
     def post (self, request):
 
         letters, words = self.format_letter_words(request.data.get('letters'), request.data.get('words'))
